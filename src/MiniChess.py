@@ -53,9 +53,7 @@ class MiniChess:
         - boolean representing the validity of the move
     """
     def is_valid_move(self, game_state, move):
-        # Check if move is in list of valid moves
-        # TODO add call to valid_moves and change return value 
-        return True
+        return move in self.valid_moves(game_state)
 
     """
     Returns a list of valid moves
@@ -74,8 +72,14 @@ class MiniChess:
         for j, row in enumerate(game_state["board"]):
             for i, cell in enumerate(row):
                 #Pawn
-                if cell == colorPrefix + "p":
+                if cell == f'{colorPrefix}p':
                     moves.extend(self.valid_pawn_moves(game_state,j,i))
+                if cell == f'{colorPrefix}K':
+                    moves.extend(self.valid_king_moves(game_state,j,i))
+                if cell == f'{colorPrefix}N':
+                    moves.extend(self.valid_knight_moves(game_state,j,i))
+                if cell == f'{colorPrefix}B':
+                    moves.extend(self.valid_bishop_moves(game_state,j,i))
         # TODO add all valid moves
         return moves
 
@@ -116,6 +120,70 @@ class MiniChess:
         # for move in moves:
         #    print(f"Pawn moves from {move[0]} to {move[1]}")
 
+        return moves
+    """
+    Returns a list of valid moves for the kings
+
+    Args:
+        - game_state:   dictionary | Dictionary representing the current game state
+    Returns:
+        - valid moves:   list | A list of nested tuples corresponding to valid moves [((start_row, start_col),(end_row, end_col)),((start_row, start_col),(end_row, end_col))]
+    """
+    def valid_king_moves(self, game_state, j, i):
+        moves = []
+        for (x_dir, y_dir) in [
+            (-1, 1),  (0, 1),  (1, 1), 
+            (-1, 0),           (1, 0), 
+            (-1, -1), (0, -1), (1, -1)
+        ]:
+            x = i + x_dir
+            y = j + y_dir
+            if 0 <= x < len(game_state["board"][0]) and 0 <= y < len(game_state["board"]) \
+            and not game_state["board"][y][x].startswith(game_state["turn"][0]):
+                moves.append(((j, i), (y, x)))
+        return moves
+    """
+    Returns a list of valid moves for the knights
+
+    Args:
+        - game_state:   dictionary | Dictionary representing the current game state
+    Returns:
+        - valid moves:   list | A list of nested tuples corresponding to valid moves [((start_row, start_col),(end_row, end_col)),((start_row, start_col),(end_row, end_col))]
+    """
+    def valid_knight_moves(self, game_state, j, i):
+        moves = []
+        for (x_dir, y_dir) in [# Horse moves
+            (2, -1), (2, 1),   # --|
+            (1, 2),  (-1, 2),  # ¯|¯
+            (-2, 1), (-2, -1), # |--
+            (-1, -2), (1, -2)  # _|_
+        ]:
+            x = i + x_dir
+            y = j + y_dir
+            if 0 <= x < len(game_state["board"][0]) and 0 <= y < len(game_state["board"]) \
+            and not game_state["board"][y][x].startswith(game_state["turn"][0]):
+                moves.append(((j, i), (y, x)))
+        return moves
+    """
+    Returns a list of valid moves for the bishops
+
+    Args:
+        - game_state:   dictionary | Dictionary representing the current game state
+    Returns:
+        - valid moves:   list | A list of nested tuples corresponding to valid moves [((start_row, start_col),(end_row, end_col)),((start_row, start_col),(end_row, end_col))]
+    """
+    def valid_bishop_moves(self, game_state, j, i):
+        moves = []
+        for (x_dir, y_dir) in [(1, 1), (-1, -1), (1, -1), (-1, 1)]: # Diagonals / and \ 
+            x, y = i, j
+            while 0 <= (x:=x+x_dir) < len(game_state["board"][0]) and 0 <= (y:=y+y_dir) < len(game_state["board"]):
+                if game_state["board"][y][x] == '.':
+                    moves.append(((j, i), (y, x)))
+                elif not game_state["board"][y][x].startswith(game_state["turn"][0]):
+                    moves.append(((j, i), (y, x)))
+                    break
+                else:
+                    break
         return moves
     """
     Modify to board to make a move
