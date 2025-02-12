@@ -54,6 +54,7 @@ class MiniChess:
     """
     def is_valid_move(self, game_state, move):
         # Check if move is in list of valid moves
+        # TODO add call to valid_moves and change return value 
         return True
 
     """
@@ -68,8 +69,55 @@ class MiniChess:
         # Return a list of all the valid moves.
         # Implement basic move validation
         # Check for out-of-bounds, correct turn, move legality, etc
-        return
+        moves = []
+        moves.append(self.valid_pawn_moves(game_state))
+        # TODO add all valid moves
+        return moves
 
+    """
+    Returns a list of valid moves for pawns
+
+    Args:
+        - game_state:   dictionary | Dictionary representing the current game state
+    Returns:
+        - valid moves:   list | A list of nested tuples corresponding to valid moves [((start_row, start_col),(end_row, end_col)),((start_row, start_col),(end_row, end_col))]
+
+    """
+    def valid_pawn_moves(self, game_state):
+        #Setting up variables
+        moves = []
+        pawn = "wp"
+        direction = -1 
+        start_row = 3
+        opponent = "b"
+        if game_state["turn"] == "black":
+            pawn = "bp"
+            direction = 1
+            start_row = 1
+            opponent = "w"
+        
+        for j, row in enumerate(game_state["board"]):
+            for i, cell in enumerate(row):
+                if cell == pawn:
+                    #if j + direction is on the board and is empty then valid move
+                    if 0 <= j + direction < len(game_state["board"]) and game_state["board"][j + direction][i] == ".":
+                        moves.append(((j, i), (j + direction, i)))
+                    #if j is starting row for pawn and position + 2 is empty then valid move  
+                    if j == start_row and game_state["board"][j + 2 * direction][i] == ".":
+                        moves.append(((j, i), (j + 2 * direction, i)))
+                    # Verify left and right diagonal for capturing
+                    for diagonal in [-1, 1]:  
+                        x = i + diagonal
+                        y = j + direction
+                        # if new x and y are on the board and have an opponent piece on them then valid move
+                        if 0 <= x < len(game_state["board"][0]) and 0 <= y < len(game_state["board"]) and opponent in game_state["board"][y][x]:
+                            moves.append(((j, i), (y, x)))
+
+        ## For debugging purposes
+        ##for move in moves:
+        ##    print(f"Pawn moves from {move[0]} to {move[1]}")
+
+        return moves
     """
     Modify to board to make a move
 
