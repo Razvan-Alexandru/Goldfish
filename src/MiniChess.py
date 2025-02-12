@@ -70,7 +70,7 @@ class MiniChess:
         # Implement basic move validation
         # Check for out-of-bounds, correct turn, move legality, etc
         moves = []
-        moves.append(self.valid_pawn_moves(game_state))
+        moves.extend(self.valid_pawn_moves(game_state))
         # TODO add all valid moves
         return moves
 
