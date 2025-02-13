@@ -296,7 +296,7 @@ class MiniChess:
         - None
     """
     def play(self):
-        print("Welcome to Mini Chess! Enter moves as 'B2 B3'. Type 'exit' to quit.")
+        self.log("Welcome to Mini Chess! Enter moves as 'B2 B3'. Type 'exit' to quit.", CONSOLE)
         latch: bool = True
 
         while True:
