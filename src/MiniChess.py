@@ -17,14 +17,17 @@ class MiniChess:
     """
     def init_board(self):
         state = {
-                "board": 
-                [['bK', 'bQ', 'bB', 'bN', '.'],
-                ['.', '.', 'bp', 'bp', '.'],
-                ['.', '.', '.', '.', '.'],
-                ['.', 'wp', 'wp', '.', '.'],
-                ['.', 'wN', 'wB', 'wQ', 'wK']],
-                "turn": 'white',
-                }
+            "board": 
+            [['bK', 'bQ', 'bB', 'bN', '.'],
+            ['.', '.', 'bp', 'bp', '.'],
+            ['.', '.', '.', '.', '.'],
+            ['.', 'wp', 'wp', '.', '.'],
+            ['.', 'wN', 'wB', 'wQ', 'wK']],
+            "turn": 'white',
+            "turns": 0,   # count of turns
+            "capture": 0, # turn since last capture
+            "outcome": '' # white, black, draw
+        }
         return state
 
     """
@@ -105,9 +108,6 @@ class MiniChess:
         #if j + direction is on the board and is empty then valid move
         if 0 <= j + direction < len(game_state["board"]) and game_state["board"][j + direction][i] == ".":
             moves.append(((j, i), (j + direction, i)))
-        #if j is starting row for pawn and position + 2 is empty then valid move  
-        if j == start_row and game_state["board"][j + 2 * direction][i] == ".":
-            moves.append(((j, i), (j + 2 * direction, i)))
         # Verify left and right diagonal for capturing
         for diagonal in [-1, 1]:  
             x = i + diagonal
@@ -186,6 +186,23 @@ class MiniChess:
                     break
         return moves
     """
+    Verify if the game is ending on this move
+
+    Returns:
+        - game_over:    bool | Truthy if the game is over, falsy otherwise
+    """
+    def game_should_end(self):
+        if self.current_game_state["turns"] - self.current_game_state["capture"] >= 3:
+            self.current_game_state["outcome"] = 'draw'
+
+        if (self.current_game_state["outcome"]):
+            announcement = 'Draw' if self.current_game_state["outcome"] == 'draw' \
+                else f'{self.current_game_state["outcome"].capitalize()} won'
+            print(f'{announcement} in {self.current_game_state["turns"]} turns')
+            return True
+        
+        return False
+    """
     Modify to board to make a move
 
     Args: 
@@ -195,13 +212,30 @@ class MiniChess:
         - game_state:   dictionary | Dictionary representing the modified game state
     """
     def make_move(self, game_state, move):
-        start = move[0]
-        end = move[1]
+        start, end = move
+
         start_row, start_col = start
         end_row, end_col = end
-        piece = game_state["board"][start_row][start_col]
+
+        moving_piece = game_state["board"][start_row][start_col]
+        capt_piece = game_state["board"][end_row][end_col]
+
+        # Turns since last capture
+        ## Set to next turn because the turn count is 0-indexed
+        if capt_piece != '.':
+            game_state["capture"] = game_state["turns"] + 1
+
+        # Queening
+        if (moving_piece == 'wp' and end_row == 0) or \
+        (moving_piece == 'bp' and end_row == len(game_state["board"]) - 1):
+            moving_piece = f'{game_state["turn"][0]}Q'
+
+        # King capture
+        if capt_piece == 'wK' or capt_piece == 'bK':
+            game_state["outcome"] = game_state["turn"]
+
         game_state["board"][start_row][start_col] = '.'
-        game_state["board"][end_row][end_col] = piece
+        game_state["board"][end_row][end_col] = moving_piece
         game_state["turn"] = "black" if game_state["turn"] == "white" else "white"
 
         return game_state
@@ -233,8 +267,15 @@ class MiniChess:
     """
     def play(self):
         print("Welcome to Mini Chess! Enter moves as 'B2 B3'. Type 'exit' to quit.")
+        latch: bool = True
         while True:
             self.display_board(self.current_game_state)
+
+            # Game over ---\
+            if (self.game_should_end()):
+                break
+
+            # Players make moves ---\
             move = input(f"{self.current_game_state['turn'].capitalize()} to move: ")
             if move.lower() == 'exit':
                 print("Game exited.")
@@ -246,6 +287,7 @@ class MiniChess:
                 continue
 
             self.make_move(self.current_game_state, move)
+            self.current_game_state["turns"] += (latch := not latch)
 
 if __name__ == "__main__":
     game = MiniChess()
