@@ -56,14 +56,19 @@ class MiniChess:
     Args:
         - message: String message to log
         - mode:    Integer with bit fields FILE, CONSOLE
-
-
     """
     def log(self, message = '', mode: int = FILE | CONSOLE):
         if (mode & FILE): 
             self.output.append(message)
         if (mode & CONSOLE): 
             print(message)
+    """
+    Exit the game and write to console
+    """
+    def safe_exit(self):
+        with open('output.txt', 'w') as out:
+            out.write('\n'.join(self.output))
+        exit(0)
     """
     Check if the move is valid    
     
@@ -85,25 +90,30 @@ class MiniChess:
         - valid moves:   list | A list of nested tuples corresponding to valid moves [((start_row, start_col),(end_row, end_col)),((start_row, start_col),(end_row, end_col))]
     """
     def valid_moves(self, game_state):
-        # Return a list of all the valid moves.
-        # Implement basic move validation
-        # Check for out-of-bounds, correct turn, move legality, etc
+        move_validations: dict = {
+            'p': self.valid_pawn_moves,
+            'K': self.valid_king_moves,
+            'N': self.valid_knight_moves,
+            'B': self.valid_bishop_moves,
+        }
+
         moves = []
-        colorPrefix = "b" if game_state["turn"] == "black" else "w"
+        color = game_state["turn"][0]
         for j, row in enumerate(game_state["board"]):
             for i, cell in enumerate(row):
-                if cell == '.': continue
-                elif cell[1] == 'p':
-                    moves.extend(self.valid_pawn_moves(game_state,j,i))
-                elif cell[1] == 'K':
-                    moves.extend(self.valid_king_moves(game_state,j,i))
-                elif cell[1] == 'N':
-                    moves.extend(self.valid_knight_moves(game_state,j,i))
-                elif cell[1] == 'B':
-                    moves.extend(self.valid_bishop_moves(game_state,j,i))
-        # TODO add all valid moves
+                # Skip for empty square or incorrect turn
+                if cell == '.' or cell[0] != color: 
+                    continue
+                print(move_validations.get(cell[1], self.unknown_piece))
+            
         return moves
 
+    """
+    Quit program if there is an invalid piece
+    """
+    def unknown_piece(self, *args):
+        self.log("A piece on the board is not recognized. Exiting...")
+        self.safe_exit()
     """
     Returns a list of valid moves for pawns
 
@@ -292,14 +302,14 @@ class MiniChess:
 
             # Game over ---\
             if (self.game_should_end()):
-                break
+                self.safe_exit()
 
             # Players make moves ---\
             self.log(f'Turn #{self.current_game_state["turns"]}')
             move = input(f'{self.current_game_state['turn'].capitalize()} to move: ')
             if move.lower() == 'exit':
                 self.log("Game exited.")
-                break
+                self.safe_exit()
             
             self.log(f'{self.current_game_state['turn'].capitalize()} played {move}', FILE)
 
@@ -310,10 +320,7 @@ class MiniChess:
 
             self.make_move(self.current_game_state, move)
             self.current_game_state["turns"] += (latch := not latch)
-        
-        with open('output.txt', 'w') as out:
-            out.write('\n'.join(self.output))
-            
+                    
 
 if __name__ == "__main__":
     game = MiniChess()
