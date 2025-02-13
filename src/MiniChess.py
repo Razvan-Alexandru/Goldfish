@@ -104,7 +104,9 @@ class MiniChess:
                 # Skip for empty square or incorrect turn
                 if cell == '.' or cell[0] != color: 
                     continue
-                print(move_validations.get(cell[1], self.unknown_piece))
+                moves.extend(
+                    move_validations.get(cell[1], self.unknown_piece)
+                )
             
         return moves
 
