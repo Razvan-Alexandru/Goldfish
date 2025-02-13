@@ -74,14 +74,14 @@ class MiniChess:
         colorPrefix = "b" if game_state["turn"] == "black" else "w"
         for j, row in enumerate(game_state["board"]):
             for i, cell in enumerate(row):
-                #Pawn
-                if cell == f'{colorPrefix}p':
+                if cell == '.': continue
+                elif cell[1] == 'p':
                     moves.extend(self.valid_pawn_moves(game_state,j,i))
-                if cell == f'{colorPrefix}K':
+                elif cell[1] == 'K':
                     moves.extend(self.valid_king_moves(game_state,j,i))
-                if cell == f'{colorPrefix}N':
+                elif cell[1] == 'N':
                     moves.extend(self.valid_knight_moves(game_state,j,i))
-                if cell == f'{colorPrefix}B':
+                elif cell[1] == 'B':
                     moves.extend(self.valid_bishop_moves(game_state,j,i))
         # TODO add all valid moves
         return moves
