@@ -22,11 +22,11 @@ class MiniChess:
     def init_board(self):
         state = {
             "board": 
-            [['bK', 'bB', 'bB', 'bN', '.'],
-            ['.', '.', 'bp', 'bp', '.'],
-            ['.', '.', '.', '.', '.'],
-            ['.', 'wp', 'wp', '.', '.'],
-            ['.', 'wN', 'wB', 'wB', 'wK']],
+            [['bK', 'bQ', 'bB', 'bN', '.' ],
+            [ '.' , '.' , 'bp', 'bp', '.' ],
+            [ '.' , '.' , '.' , '.' , '.' ],
+            [ '.' , 'wp', 'wp', '.' , '.' ],
+            [ '.' , 'wN', 'wB', 'wQ', 'wK']],
             "turn": 'white',
             "turns":   1, # count of turns
             "capture": 0, # turn since last capture
