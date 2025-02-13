@@ -22,11 +22,11 @@ class MiniChess:
     def init_board(self):
         state = {
             "board": 
-            [['bK', 'bQ', 'bB', 'bN', '.'],
+            [['bK', 'bB', 'bB', 'bN', '.'],
             ['.', '.', 'bp', 'bp', '.'],
             ['.', '.', '.', '.', '.'],
             ['.', 'wp', 'wp', '.', '.'],
-            ['.', 'wN', 'wB', 'wQ', 'wK']],
+            ['.', 'wN', 'wB', 'wB', 'wK']],
             "turn": 'white',
             "turns":   1, # count of turns
             "capture": 0, # turn since last capture
@@ -105,7 +105,7 @@ class MiniChess:
                 if cell == '.' or cell[0] != color: 
                     continue
                 moves.extend(
-                    move_validations.get(cell[1], self.unknown_piece)
+                    move_validations.get(cell[1], self.unknown_piece)(game_state, j, i)
                 )
             
         return moves
