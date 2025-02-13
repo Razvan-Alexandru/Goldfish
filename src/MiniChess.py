@@ -6,6 +6,7 @@ import argparse
 class MiniChess:
     def __init__(self):
         self.current_game_state = self.init_board()
+        self.output = []
 
     """
     Initialize the board
@@ -24,7 +25,7 @@ class MiniChess:
             ['.', 'wp', 'wp', '.', '.'],
             ['.', 'wN', 'wB', 'wQ', 'wK']],
             "turn": 'white',
-            "turns": 0,   # count of turns
+            "turns":   1, # count of turns
             "capture": 0, # turn since last capture
             "outcome": '' # white, black, draw
         }
@@ -39,13 +40,24 @@ class MiniChess:
         - None
     """
     def display_board(self, game_state):
-        print()
+        self.reflect()
         for i, row in enumerate(game_state["board"], start=1):
-            print(str(6-i) + "  " + ' '.join(piece.rjust(3) for piece in row))
-        print()
-        print("     A   B   C   D   E")
-        print()
+            self.reflect(str(6-i) + "  " + ' '.join(piece.rjust(3) for piece in row))
+        self.reflect()
+        self.reflect("     A   B   C   D   E")
+        self.reflect()
 
+    """
+    Log to console and output file
+    """
+    def reflect(self, message = '', conend = '\n'):
+        self.output.append(message)
+        print(message, end=conend)
+    """
+    Log to output file only
+    """
+    def log(self, message = ''):
+        self.output.append(message)
     """
     Check if the move is valid    
     
@@ -192,13 +204,13 @@ class MiniChess:
         - game_over:    bool | Truthy if the game is over, falsy otherwise
     """
     def game_should_end(self):
-        if self.current_game_state["turns"] - self.current_game_state["capture"] >= 3:
+        if self.current_game_state["turns"] - self.current_game_state["capture"] >= 10:
             self.current_game_state["outcome"] = 'draw'
 
         if (self.current_game_state["outcome"]):
             announcement = 'Draw' if self.current_game_state["outcome"] == 'draw' \
                 else f'{self.current_game_state["outcome"].capitalize()} won'
-            print(f'{announcement} in {self.current_game_state["turns"]} turns')
+            self.reflect(f'{announcement} in {self.current_game_state["turns"]} turns')
             return True
         
         return False
@@ -221,7 +233,7 @@ class MiniChess:
         capt_piece = game_state["board"][end_row][end_col]
 
         # Turns since last capture
-        ## Set to next turn because the turn count is 0-indexed
+        ## Set to next turn because the current turn is not over yet
         if capt_piece != '.':
             game_state["capture"] = game_state["turns"] + 1
 
@@ -268,6 +280,7 @@ class MiniChess:
     def play(self):
         print("Welcome to Mini Chess! Enter moves as 'B2 B3'. Type 'exit' to quit.")
         latch: bool = True
+
         while True:
             self.display_board(self.current_game_state)
 
@@ -276,18 +289,25 @@ class MiniChess:
                 break
 
             # Players make moves ---\
-            move = input(f"{self.current_game_state['turn'].capitalize()} to move: ")
+            self.reflect(f'Turn #{self.current_game_state["turns"]}')
+            move = input(f'{self.current_game_state['turn'].capitalize()} to move: ')
             if move.lower() == 'exit':
-                print("Game exited.")
-                exit(1)
+                self.reflect("Game exited.")
+                break
+            
+            self.log(f'{self.current_game_state['turn'].capitalize()} played {move}')
 
             move = self.parse_input(move)
             if not move or not self.is_valid_move(self.current_game_state, move):
-                print("Invalid move. Try again.")
+                self.reflect("Invalid move. Try again.")
                 continue
 
             self.make_move(self.current_game_state, move)
             self.current_game_state["turns"] += (latch := not latch)
+        
+        with open('output.txt', 'w') as out:
+            out.write('\n'.join(self.output))
+            
 
 if __name__ == "__main__":
     game = MiniChess()

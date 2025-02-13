@@ -1,0 +1,3 @@
+# Goldfish
+
+Stockfish but better
