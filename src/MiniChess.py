@@ -3,6 +3,9 @@ import copy
 import time
 import argparse
 
+FILE:    int = 0b01
+CONSOLE: int = 0b10
+
 class MiniChess:
     def __init__(self):
         self.current_game_state = self.init_board()
@@ -40,24 +43,27 @@ class MiniChess:
         - None
     """
     def display_board(self, game_state):
-        self.reflect()
+        self.log()
         for i, row in enumerate(game_state["board"], start=1):
-            self.reflect(str(6-i) + "  " + ' '.join(piece.rjust(3) for piece in row))
-        self.reflect()
-        self.reflect("     A   B   C   D   E")
-        self.reflect()
+            self.log(str(6-i) + "  " + ' '.join(piece.rjust(3) for piece in row))
+        self.log()
+        self.log("     A   B   C   D   E")
+        self.log()
 
     """
-    Log to console and output file
+    Log to console and/or output file
+
+    Args:
+        - message: String message to log
+        - mode:    Integer with bit fields FILE, CONSOLE
+
+
     """
-    def reflect(self, message = '', conend = '\n'):
-        self.output.append(message)
-        print(message, end=conend)
-    """
-    Log to output file only
-    """
-    def log(self, message = ''):
-        self.output.append(message)
+    def log(self, message = '', mode: int = FILE | CONSOLE):
+        if (mode & FILE): 
+            self.output.append(message)
+        if (mode & CONSOLE): 
+            print(message)
     """
     Check if the move is valid    
     
@@ -210,7 +216,7 @@ class MiniChess:
         if (self.current_game_state["outcome"]):
             announcement = 'Draw' if self.current_game_state["outcome"] == 'draw' \
                 else f'{self.current_game_state["outcome"].capitalize()} won'
-            self.reflect(f'{announcement} in {self.current_game_state["turns"]} turns')
+            self.log(f'{announcement} in {self.current_game_state["turns"]} turns')
             return True
         
         return False
@@ -289,17 +295,17 @@ class MiniChess:
                 break
 
             # Players make moves ---\
-            self.reflect(f'Turn #{self.current_game_state["turns"]}')
+            self.log(f'Turn #{self.current_game_state["turns"]}')
             move = input(f'{self.current_game_state['turn'].capitalize()} to move: ')
             if move.lower() == 'exit':
-                self.reflect("Game exited.")
+                self.log("Game exited.")
                 break
             
-            self.log(f'{self.current_game_state['turn'].capitalize()} played {move}')
+            self.log(f'{self.current_game_state['turn'].capitalize()} played {move}', FILE)
 
             move = self.parse_input(move)
             if not move or not self.is_valid_move(self.current_game_state, move):
-                self.reflect("Invalid move. Try again.")
+                self.log("Invalid move. Try again.")
                 continue
 
             self.make_move(self.current_game_state, move)
