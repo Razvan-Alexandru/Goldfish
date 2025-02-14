@@ -95,6 +95,7 @@ class MiniChess:
             'K': self.valid_king_moves,
             'N': self.valid_knight_moves,
             'B': self.valid_bishop_moves,
+            'Q': self.valid_queen_moves
         }
 
         moves = []
@@ -193,6 +194,28 @@ class MiniChess:
             if 0 <= x < len(game_state["board"][0]) and 0 <= y < len(game_state["board"]) \
             and not game_state["board"][y][x].startswith(game_state["turn"][0]):
                 moves.append(((j, i), (y, x)))
+        return moves
+    """
+    Returns a list of valid moves for the Queens
+
+    Args:
+        - game_state:   dictionary | Dictionary representing the current game state
+    Returns:
+        - valid moves:   list | A list of nested tuples corresponding to valid moves [((start_row, start_col),(end_row, end_col)),((start_row, start_col),(end_row, end_col))]
+    """
+    def valid_queen_moves(self, game_state, j, i):
+        moves = self.valid_bishop_moves(game_state, j, i)
+        for (x_dir, y_dir) in [(1, 0), (-1, 0), (0, 1), (0, -1)]: #Vertical and Horizontal
+                x, y = i, j
+                while 0 <= (x := x + x_dir) < len(game_state["board"][0]) and 0 <= (y := y + y_dir) < len(game_state["board"]):
+                    if game_state["board"][y][x] == '.':
+                        moves.append(((j, i), (y, x)))
+                    elif not game_state["board"][y][x].startswith(game_state["turn"][0]):
+                        moves.append(((j, i), (y, x)))
+                        break
+                    else:
+                        break
+
         return moves
     """
     Returns a list of valid moves for the bishops
