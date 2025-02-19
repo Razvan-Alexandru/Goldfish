@@ -69,6 +69,11 @@ class MiniChess:
         with open('output.txt', 'w') as out:
             out.write('\n'.join(self.output))
         exit(0)
+
+    @staticmethod
+    def on_board(self, dict, x: int, y: int) -> bool:
+        return 0 <= x < len(self.current_game_state["board"][0]) and \
+               0 <= y < len(self.current_game_state["board"])
     """
     Check if the move is valid    
     
@@ -130,27 +135,21 @@ class MiniChess:
         #Setting up variables
         moves = []
         direction = -1 
-        start_row = 3
         opponent = "b"
         if game_state["turn"] == "black":
             direction = 1
-            start_row = 1
             opponent = "w"
         #if j + direction is on the board and is empty then valid move
-        if 0 <= j + direction < len(game_state["board"]) and game_state["board"][j + direction][i] == ".":
+        if self.on_board(i, j + direction) and game_state["board"][j + direction][i] == ".":
             moves.append(((j, i), (j + direction, i)))
         # Verify left and right diagonal for capturing
         for diagonal in [-1, 1]:  
             x = i + diagonal
             y = j + direction
             # if new x and y are on the board and have an opponent piece on them then valid move
-            if 0 <= x < len(game_state["board"][0]) and 0 <= y < len(game_state["board"]) and opponent in game_state["board"][y][x]:
+            if self.on_board(x, y) and opponent in game_state["board"][y][x]:
                 moves.append(((j, i), (y, x)))
-
-        # #For debugging purposes
-        # for move in moves:
-        #    print(f"Pawn moves from {move[0]} to {move[1]}")
-
+                
         return moves
     """
     Returns a list of valid moves for the kings
@@ -169,8 +168,7 @@ class MiniChess:
         ]:
             x = i + x_dir
             y = j + y_dir
-            if 0 <= x < len(game_state["board"][0]) and 0 <= y < len(game_state["board"]) \
-            and not game_state["board"][y][x].startswith(game_state["turn"][0]):
+            if self.on_board(x, y) and not game_state["board"][y][x].startswith(game_state["turn"][0]):
                 moves.append(((j, i), (y, x)))
         return moves
     """
@@ -191,8 +189,7 @@ class MiniChess:
         ]:
             x = i + x_dir
             y = j + y_dir
-            if 0 <= x < len(game_state["board"][0]) and 0 <= y < len(game_state["board"]) \
-            and not game_state["board"][y][x].startswith(game_state["turn"][0]):
+            if self.on_board(x, y) and not game_state["board"][y][x].startswith(game_state["turn"][0]):
                 moves.append(((j, i), (y, x)))
         return moves
     """
@@ -207,7 +204,7 @@ class MiniChess:
         moves = self.valid_bishop_moves(game_state, j, i)
         for (x_dir, y_dir) in [(1, 0), (-1, 0), (0, 1), (0, -1)]: #Vertical and Horizontal
                 x, y = i, j
-                while 0 <= (x := x + x_dir) < len(game_state["board"][0]) and 0 <= (y := y + y_dir) < len(game_state["board"]):
+                while self.on_board(x:=x+x_dir, y:=y+y_dir):
                     if game_state["board"][y][x] == '.':
                         moves.append(((j, i), (y, x)))
                     elif not game_state["board"][y][x].startswith(game_state["turn"][0]):
@@ -229,7 +226,7 @@ class MiniChess:
         moves = []
         for (x_dir, y_dir) in [(1, 1), (-1, -1), (1, -1), (-1, 1)]: # Diagonals / and \ 
             x, y = i, j
-            while 0 <= (x:=x+x_dir) < len(game_state["board"][0]) and 0 <= (y:=y+y_dir) < len(game_state["board"]):
+            while self.on_board(x:=x+x_dir, y:=y+y_dir):
                 if game_state["board"][y][x] == '.':
                     moves.append(((j, i), (y, x)))
                 elif not game_state["board"][y][x].startswith(game_state["turn"][0]):
