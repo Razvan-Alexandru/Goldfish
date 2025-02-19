@@ -70,10 +70,12 @@ class MiniChess:
             out.write('\n'.join(self.output))
         exit(0)
 
-    @staticmethod
-    def on_board(self, dict, x: int, y: int) -> bool:
+    def on_board(self, x: int, y: int) -> bool:
         return 0 <= x < len(self.current_game_state["board"][0]) and \
                0 <= y < len(self.current_game_state["board"])
+    
+    def empty(self, x: int, y: int) -> bool:
+        return self.current_game_state["board"][y][x] == '.'
     """
     Check if the move is valid    
     
@@ -134,19 +136,15 @@ class MiniChess:
     def valid_pawn_moves(self, game_state,j,i):
         #Setting up variables
         moves = []
-        direction = -1 
-        opponent = "b"
-        if game_state["turn"] == "black":
-            direction = 1
-            opponent = "w"
-        #if j + direction is on the board and is empty then valid move
-        if self.on_board(i, j + direction) and game_state["board"][j + direction][i] == ".":
+        state = {"black": (1, 'w'), "white": (-1, 'b')}
+        direction, opponent = state[game_state["turn"]]
+        # Move forward
+        if self.on_board(i, j + direction) and self.empty(i, j + direction):
             moves.append(((j, i), (j + direction, i)))
-        # Verify left and right diagonal for capturing
+        # Capture
         for diagonal in [-1, 1]:  
             x = i + diagonal
             y = j + direction
-            # if new x and y are on the board and have an opponent piece on them then valid move
             if self.on_board(x, y) and opponent in game_state["board"][y][x]:
                 moves.append(((j, i), (y, x)))
                 
@@ -205,7 +203,7 @@ class MiniChess:
         for (x_dir, y_dir) in [(1, 0), (-1, 0), (0, 1), (0, -1)]: #Vertical and Horizontal
                 x, y = i, j
                 while self.on_board(x:=x+x_dir, y:=y+y_dir):
-                    if game_state["board"][y][x] == '.':
+                    if self.empty(x, y):
                         moves.append(((j, i), (y, x)))
                     elif not game_state["board"][y][x].startswith(game_state["turn"][0]):
                         moves.append(((j, i), (y, x)))
@@ -227,7 +225,7 @@ class MiniChess:
         for (x_dir, y_dir) in [(1, 1), (-1, -1), (1, -1), (-1, 1)]: # Diagonals / and \ 
             x, y = i, j
             while self.on_board(x:=x+x_dir, y:=y+y_dir):
-                if game_state["board"][y][x] == '.':
+                if self.empty(x, y):
                     moves.append(((j, i), (y, x)))
                 elif not game_state["board"][y][x].startswith(game_state["turn"][0]):
                     moves.append(((j, i), (y, x)))
