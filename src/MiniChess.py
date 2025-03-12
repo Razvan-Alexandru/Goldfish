@@ -272,6 +272,7 @@ class MiniChess:
         ## Set to next turn because the current turn is not over yet
         if capt_piece != '.':
             game_state["capture"] = game_state["turns"] + 1
+            self.HeuristicsEvaluaor.evaluate_e0(capt_piece) # This function will evaluate the current board evaluation during each turn
 
         # Queening
         if (moving_piece == 'wp' and end_row == 0) or \
