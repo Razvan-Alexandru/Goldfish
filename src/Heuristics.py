@@ -1,4 +1,4 @@
-class HeuristicsEvaluaor:
+class HeuristicsEvaluator:
     def __init__(self, game_state):
         self.score = {"e0": 0} # Could have used the evaluate_e0 function, but at the start if the game this value is always 0.
 
