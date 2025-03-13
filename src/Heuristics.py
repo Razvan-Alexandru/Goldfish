@@ -1,5 +1,5 @@
 class HeuristicsEvaluator:
-    def __init__(self, game_state):
+    def __init__(self):
         self.score = {"e0": 0} # Could have used the evaluate_e0 function, but at the start if the game this value is always 0.
 
     """
@@ -19,5 +19,5 @@ class HeuristicsEvaluator:
     def update_e0(self, game_state, capt_piece):
         piece_values = {'p': 1, 'B': 3, 'N': 3, 'Q': 9, 'K': 999}
 
-        self.score -= piece_values.get(capt_piece[1], 0) * (1 if capt_piece[0] == 'w' else -1)
-        return self.score
+        self.score["e0"] -= piece_values.get(capt_piece[1], 0) * (1 if capt_piece[0] == 'w' else -1)
+        return self.score["e0"]
