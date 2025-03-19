@@ -12,7 +12,7 @@ class HeuristicsEvaluator:
         for row in game_state["board"]:
             for cell in row:
                 if cell != '.':
-                    value = piece_values.get(cell[1], 0)
+                    value = piece_value.get(cell[1], 0)
                     score += value if cell[0] == 'w' else -value
         return score
 

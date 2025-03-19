@@ -3,15 +3,22 @@ import copy
 import time
 import argparse
 from Heuristics import HeuristicsEvaluator
+from Player import AI, Human
 
 FILE:    int = 0b01
 CONSOLE: int = 0b10
-
 class MiniChess:
-    def __init__(self):
+    def __init__(self, time_limit, max_turns, use_alpha_beta, play_mode):
         self.current_game_state = self.init_board()
         self.output = []
         self.evaluator = HeuristicsEvaluator()
+        self.time_limit = time_limit
+        self.max_turns = max_turns
+        self.use_alpha_beta = use_alpha_beta
+        self.play_mode = play_mode
+        play_mode_arr = play_mode.split("-")
+        self.player1 = Human() if play_mode_arr[0] == "H" else AI(self.use_alpha_beta,self.time_limit, self.evaluator)
+        self.player2 = Human() if play_mode_arr[1] == "H" else AI(self.use_alpha_beta,self.time_limit, self.evaluator)
 
     """
     Initialize the board
@@ -326,14 +333,17 @@ class MiniChess:
             # Game over ---\
             if (self.game_should_end()):
                 self.safe_exit()
-
             # Players make moves ---\
             self.log(f'Turn #{self.current_game_state["turns"]}')
-            move = input(f'{self.current_game_state['turn'].capitalize()} to move: ')
+
+            if self.current_game_state["turn"] == "white":
+                move = self.player1.make_move(self)
+            else:
+                move = self.player2.make_move(self)
             if move.lower() == 'exit':
                 self.log("Game exited.")
-                self.safe_exit()
-            
+                self.safe_exit()                
+           
             self.log(f'{self.current_game_state['turn'].capitalize()} played {move}', FILE)
 
             move = self.parse_input(move)
@@ -343,8 +353,39 @@ class MiniChess:
 
             self.make_move(self.current_game_state, move)
             self.current_game_state["turns"] += (latch := not latch)
-                    
+
+"""
+Validates that the input value is a postive integer
+
+Args:
+    - Value
+Returns:
+    - Value
+"""
+def validate_positiveInt(value):
+    try:
+        intValue = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"Invalid input: {value} is not an integer.")
+    if intValue <= 0:
+        raise argparse.ArgumentTypeError(f"{value} must be a postive integer.")
+    return intValue
+    
+
 
 if __name__ == "__main__":
-    game = MiniChess()
+    # Parsing Args
+    parser = argparse.ArgumentParser(description="MiniChess AI Game")
+    parser.add_argument("time_limit", type=validate_positiveInt, help="Maximum allowed time per move (seconds)")
+    parser.add_argument("max_turns", type=validate_positiveInt, help="Maximum number of turns before game ends")
+    parser.add_argument("use_alpha_beta", type=int, choices=[0,1], help="Use Alpha-Beta pruning? (0 = No, 1 = Yes).")
+    parser.add_argument("play_mode", type=str, choices=["H-H","H-AI","AI-H","AI-AI"], help="Is Player 1 an AI? (H-H H-AI AI-H AI-AI.)")
+    args = parser.parse_args()
+    
+    game = MiniChess( 
+        time_limit=args.time_limit,
+        max_turns=args.max_turns,
+        use_alpha_beta=args.use_alpha_beta,
+        play_mode=args.play_mode,
+        )
     game.play()
