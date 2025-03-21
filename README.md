@@ -4,7 +4,8 @@ AI Course project for a 5x5 chess game. Currently supports Human vs Human.
 
 # Quick start
 
-The game is contained in `MiniChess.py`. Simply run it on the command line.
+The game is contained in `MiniChess.py <time_limit> <max_turns> <use_alpha_beta> <play_mode> <heurstic>`. Simply run it on the command line.
+Ex: `MiniChess.py 25 13 1 H-AI e0`
 
 ```console
 $ python MiniChess.py
