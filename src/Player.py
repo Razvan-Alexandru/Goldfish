@@ -17,5 +17,5 @@ class AI(Player):
         self.evaluator = evaluator
     def make_move(self,game):
         minimax = Minimax(game, self.evaluator, self.use_alpha_beta,self.time_limit)
-        move = minimax.getMove(game.current_game_state, 3, True) if game.current_game_state['turn'] == "white" else minimax.getMove(game.current_game_state, 3, True)
+        move = minimax.getMove(game.current_game_state, 3, False) if game.current_game_state['turn'] == "white" else minimax.getMove(game.current_game_state, 3, True)
         return move
