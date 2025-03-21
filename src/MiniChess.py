@@ -249,7 +249,7 @@ class MiniChess:
         - game_over:    bool | Truthy if the game is over, falsy otherwise
     """
     def game_should_end(self):
-        if self.current_game_state["turns"] - self.current_game_state["capture"] >= 10:
+        if self.current_game_state["turns"] - self.current_game_state["capture"] >= self.max_turns:
             self.current_game_state["outcome"] = 'draw'
 
         if (self.current_game_state["outcome"]):
@@ -335,11 +335,14 @@ class MiniChess:
                 self.safe_exit()
             # Players make moves ---\
             self.log(f'Turn #{self.current_game_state["turns"]}')
-
+            isCurrentPlayerAI = False
             if self.current_game_state["turn"] == "white":
                 move = self.player1.make_move(self)
+                isCurrentPlayerAI = isinstance(self.player1, AI)
             else:
                 move = self.player2.make_move(self)
+                isCurrentPlayerAI = isinstance(self.player2, AI)
+
             if move.lower() == 'exit':
                 self.log("Game exited.")
                 self.safe_exit()                
@@ -348,8 +351,13 @@ class MiniChess:
 
             move = self.parse_input(move)
             if not move or not self.is_valid_move(self.current_game_state, move):
-                self.log("Invalid move. Try again.")
-                continue
+                if(isCurrentPlayerAI):
+                    print(f'AI made invalid move. {self.current_game_state["turn"]} lost.')
+                    self.log(f'AI made invalid move. {self.current_game_state["turn"]} lost.')
+                    self.safe_exit()
+                else:
+                    self.log("Invalid move. Try again.")
+                    continue
 
             self.make_move(self.current_game_state, move)
             self.current_game_state["turns"] += (latch := not latch)
@@ -385,7 +393,7 @@ if __name__ == "__main__":
     game = MiniChess( 
         time_limit=args.time_limit,
         max_turns=args.max_turns,
-        use_alpha_beta=args.use_alpha_beta,
+        use_alpha_beta=bool(args.use_alpha_beta),
         play_mode=args.play_mode,
         )
     game.play()
