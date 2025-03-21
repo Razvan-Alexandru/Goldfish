@@ -343,7 +343,7 @@ class MiniChess:
                 move = self.player2.make_move(self)
                 isCurrentPlayerAI = isinstance(self.player2, AI)
 
-            if move.lower() == 'exit':
+            if move != None and move.lower() == 'exit':
                 self.log("Game exited.")
                 self.safe_exit()                
            
@@ -352,8 +352,7 @@ class MiniChess:
             move = self.parse_input(move)
             if not move or not self.is_valid_move(self.current_game_state, move):
                 if(isCurrentPlayerAI):
-                    print(f'AI made invalid move. {self.current_game_state["turn"]} lost.')
-                    self.log(f'AI made invalid move. {self.current_game_state["turn"]} lost.')
+                    self.log(f'AI made invalid move ({move}). {self.current_game_state["turn"]} lost.')
                     self.safe_exit()
                 else:
                     self.log("Invalid move. Try again.")

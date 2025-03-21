@@ -34,6 +34,9 @@ class Minimax:
         nodes_to_explore = [root_node]
         
         while nodes_to_explore:
+            #Case where time is exceeded
+            if time.time() - self.start_time > self.time_limit:
+                return None
             current_node = nodes_to_explore.pop()
             
             if current_node.depth < depth:
@@ -52,21 +55,24 @@ class Minimax:
     # Returns the best move
     def getMove(self, game_state, depth, maximizing_player):
         self.start_time = time.time()
+
         root_node = self.generate_game_tree(game_state, depth, maximizing_player)
-        
         alpha = -math.inf
         beta = math.inf
         best_move = None
 
-        best_move = self.minimax(root_node, depth, alpha, beta, maximizing_player,self.use_alpha_beta).move
+        best_move = self.minimax(root_node, depth, alpha, beta, maximizing_player,self.use_alpha_beta)
 
         if best_move:
-            best_move = self.convert_to_notation(best_move[0], best_move[1])
+            best_move = self.convert_to_notation(best_move.move[0], best_move.move[1])
             print(f'{self.game.current_game_state["turn"].capitalize()} to move: {best_move}')
-        
+
         return best_move
             
     def minimax(self, node, depth, alpha, beta, maximizingPlayer, use_alpha_beta):
+        if time.time() - self.start_time > self.time_limit:
+            return node
+
         # Base case
         if depth == 0 or not node.children:
             return node 
@@ -95,7 +101,7 @@ class Minimax:
                     v = score
                     best_node = child_node
                 beta = min(beta, v)  
-                if beta <= alpha:
+                if use_alpha_beta and beta <= alpha:
                     break
             return best_node
   

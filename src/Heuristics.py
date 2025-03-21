@@ -33,7 +33,10 @@ class HeuristicsEvaluator:
     def evaluate_e1(self, game_state):
         white_moves = len(self.chess.valid_moves({**game_state, "turn": "white"}))
         black_moves = len(self.chess.valid_moves({**game_state, "turn": "black"}))
-        return white_moves - black_moves  # More mobility is better
+        if self.chess.current_game_state["turn"] == "white":
+            return white_moves - black_moves
+        else:
+            return black_moves - white_moves
 
     def evaluate_e2(self, game_state):
         return 1 * self.evaluate_e0(game_state) + 0.3 * self.evaluate_e1(game_state)
