@@ -122,7 +122,7 @@ class MinimaxTreeNode:
            
             # Max depth reached, evaluate node
             if child_node.depth >= self.maxDepth: 
-                child_node.score = self.evaluator.evaluate_e0(child_node.game_state)
+                child_node.score = self.evaluator.evaluate(child_node.game_state)
             
             # Add the child node to the current node's children
             self.children.append(child_node)
